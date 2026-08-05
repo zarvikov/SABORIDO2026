@@ -641,7 +641,6 @@ async function enviarCategoria(){
   const obs=document.getElementById("nc-obs").value;
   const linha=document.getElementById("nc-linha").value;
   if(!nome){setMsg("st-cat","Preencha o nome","err");return}
-  setMsg("st-cat","Salvando...","loading");
   const dados=linha?{acao:"editarCategoria",linha,nome,cor,obs,token:_token}
                    :{acao:"novaCategoria",nome,cor,obs,token:_token};
   // UPDATE OTIMISTA - atualiza UI antes do servidor confirmar
@@ -654,14 +653,13 @@ async function enviarCategoria(){
   renderCategorias();
   popularSelectsCategorias();
   atualizarDashboard();
-  setMsg("st-cat","✓ Salvo","ok");
   resetarFormCategoria();
   goTo("categorias");
   // Envia pro servidor em background
   try{
     fetch(URL_GS,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(dados)});
     // Recarrega SÓ a aba de categorias em background pra sincronizar
-    setTimeout(()=>{carregarAba("Categorias",d=>{categoriasData=d;renderCategorias();popularSelectsCategorias();atualizarDashboard()});},1500);
+    // Sincroniza sem bloquear a UI (não recarrega, deixa como está)
   }catch(e){setMsg("st-cat","Erro ao sincronizar","err")}
 }
 function resetarFormCategoria(){
@@ -693,7 +691,7 @@ async function deletarCategoria(linha){
   atualizarDashboard();
   try{
     fetch(URL_GS,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({acao:"deletar",aba:"Categorias",linha,token:_token})});
-    setTimeout(()=>{carregarAba("Categorias",d=>{categoriasData=d;renderCategorias();popularSelectsCategorias();atualizarDashboard()});},1200);
+    // Sincroniza sem bloquear a UI
   }catch(e){alert("Erro")}
 }
 async function deletarSub(linha){
@@ -703,7 +701,7 @@ async function deletarSub(linha){
   renderCategorias();
   try{
     fetch(URL_GS,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({acao:"deletar",aba:"Subcategorias",linha,token:_token})});
-    setTimeout(()=>{carregarAba("Subcategorias",d=>{subcategoriasData=d;renderCategorias()});},1200);
+    // Sincroniza sem bloquear a UI
   }catch(e){alert("Erro")}
 }
 
@@ -714,7 +712,6 @@ async function enviarSubcategoria(){
   const obs=document.getElementById("ns-obs").value;
   const linha=document.getElementById("ns-linha").value;
   if(!categoria||!nome){setMsg("st-sub","Preencha categoria e nome","err");return}
-  setMsg("st-sub","Salvando...","loading");
   const dados=linha?{acao:"editarSubcategoria",linha,categoria,nome,obs,token:_token}
                    :{acao:"novaSubcategoria",categoria,nome,obs,token:_token};
   // UPDATE OTIMISTA
@@ -725,12 +722,11 @@ async function enviarSubcategoria(){
     subcategoriasData.push([categoria,nome,obs]);
   }
   renderCategorias();
-  setMsg("st-sub","✓ Salvo","ok");
   resetarFormSubcategoria();
   goTo("categorias");
   try{
     fetch(URL_GS,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(dados)});
-    setTimeout(()=>{carregarAba("Subcategorias",d=>{subcategoriasData=d;renderCategorias()});},1500);
+    // Sincroniza sem bloquear a UI
   }catch(e){setMsg("st-sub","Erro ao sincronizar","err")}
 }
 function resetarFormSubcategoria(){
@@ -829,7 +825,6 @@ async function enviarProduto(){
     token:_token
   };
   if(!dados.nome){setMsg("st-produto","Preencha o nome","err");return}
-  setMsg("st-produto","Salvando...","loading");
   // UPDATE OTIMISTA
   const pc=Number(dados.precoCompra)||0;
   const pv=Number(dados.precoVenda)||0;
@@ -843,12 +838,11 @@ async function enviarProduto(){
   }
   renderProdutos();
   atualizarDashboard();
-  setMsg("st-produto","✓ Salvo","ok");
   resetarFormProduto();
   goTo("produtos");
   try{
     fetch(URL_GS,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(dados)});
-    setTimeout(()=>{carregarAba("Produtos",d=>{produtosData=d;renderProdutos();atualizarDashboard()});},1500);
+    // Sincroniza sem bloquear a UI
   }catch(e){setMsg("st-produto","Erro ao sincronizar","err")}
 }
 function resetarFormProduto(){
@@ -891,7 +885,7 @@ async function deletarProduto(linha){
   atualizarDashboard();
   try{
     fetch(URL_GS,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({acao:"deletar",aba:"Produtos",linha,token:_token})});
-    setTimeout(()=>{carregarAba("Produtos",d=>{produtosData=d;renderProdutos();atualizarDashboard()});},1200);
+    // Sincroniza sem bloquear a UI
   }catch(e){alert("Erro")}
 }
 
